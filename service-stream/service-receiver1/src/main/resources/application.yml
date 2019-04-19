@@ -1,0 +1,60 @@
+server:
+  port: 8091
+spring:
+  application:
+    name: service-stream-receiver1
+  cloud:
+    discovery:
+      client:
+        simple:
+          local:
+            service-id: service-stream-receiver1
+    stream:
+# kafka-start
+#      kafka:
+#        binder:
+#          brokers: localhost:9092
+#          auto-create-topics: true
+#kafka-end
+      bindings:
+#input是接收，注意这里不能再像前面一样写output了
+          input:
+            destination: stream-pub
+#            自定义通道
+          myInput:
+            destination: stream-pub-my
+#            自定义转发通道
+          myTranceInput:
+            destination: stream-pub-trance-from
+          myTranceOutput:
+            destination: stream-pub-trance-to
+#            消息分组，即组内只会有一个接收端能消费消息，不会重复
+          myGroupIutput:
+            destination: stream-pub-group
+            group: group
+# rabbitmq-start
+      binders:
+        local_rabbit:
+          type: rabbit
+          environment:
+            spring:
+              rabbitmq:
+                host: localhost
+                port: 5672
+                username: guest
+                password: guest
+# rabbitmq-end
+
+
+eureka:
+  instance:
+      prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://localhost:8765/eureka/
+management:
+  endpoints:
+    web:
+      exposure:
+# SpringBootActuator监控暴露所有接口
+        include: '*'

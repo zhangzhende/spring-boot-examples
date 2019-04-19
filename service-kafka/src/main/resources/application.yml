@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: service-kafka
+  kafka:
+# 指定kafka 代理地址，可以多个
+    bootstrap-servers:
+      - localhost:9092
+    producer:
+      retries: 0
+# 每次批量发送消息的数量
+      batch-size: 16384
+      buffer-memory: 33554432
+# 指定消息key和消息体的编解码方式
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+# 指定默认消费者group id
+      group-id: test-consumer-group
+      auto-offset-reset: earliest
+      enable-auto-commit: true
+      auto-commit-interval: 100
+# 指定消息key和消息体的编解码方式
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+  cloud:
+    discovery:
+      client:
+        simple:
+          local:
+            service-id: service-kafka
+#链路追踪配置
+    zipkin:
+      base-url: http://localhost:9411
+    sleuth:
+      sampler:
+        #链路信息全都要
+        percentage: 1.0
+eureka:
+  instance:
+      prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://localhost:8765/eureka/
+server:
+  port: 8089
+management:
+  endpoints:
+    web:
+      exposure:
+# SpringBootActuator监控暴露所有接口
+        include: '*'

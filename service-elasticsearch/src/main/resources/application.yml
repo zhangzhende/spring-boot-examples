@@ -1,0 +1,62 @@
+spring:
+  application:
+    name: service-es
+  cloud:
+#  链路信息追踪配置
+    zipkin:
+      base-url: http://localhost:9411
+    sleuth:
+      sampler:
+        #链路信息全都要
+        percentage: 1.0
+    discovery:
+      client:
+        simple:
+          local:
+            service-id: service-es
+  elasticsearch:
+      rest:
+        uris: ["http://localhost:9200"]
+
+#服务配置
+server:
+  port: 8081
+  address: 0.0.0.0
+  tomcat.max-threads: 0
+  tomcat.uri-encoding: UTF-8
+
+#ES集群配置
+elasticSearch:
+  # 集群名称
+  cluster: MY_CLUSTER
+  # host地址
+  host: localhost
+  # 端口
+  port: 9300
+
+ES:
+  index: mytest
+  timeDifference: 600000
+  batchSize: 1000
+
+#  swagger配置，host为调用页面的接口配置，如localhost，则在调用接口的时候会localhost调用
+swagger:
+  host: localhost:${server.port}
+
+#eureka 配置服务注册与发现
+eureka:
+  instance:
+      prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://localhost:8765/eureka/
+management:
+  endpoints:
+    web:
+      exposure:
+# SpringBootActuator监控暴露所有接口
+        include: '*'
+#去掉es的健康监测，不然admin端会报错误
+  health:
+    elasticsearch:
+      enabled: false

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- status : 这个用于设置log4j2自身内部的信息输出,可以不设置,当设置成trace时,会看到log4j2内部各种详细输出 monitorInterval 
+	: Log4j能够自动检测修改配置文件和重新配置本身, 设置间隔秒数。 --> <!-- status="OFF"，可以去掉，它的含义为是否记录log4j2本身的event信息，默认是OFF -->
+<configuration status="error" monitorInterval="600">
+	<Properties>
+		<Property name="LOG_PATTERN">{"service":"es-service","time":"%d{yyyy-MM-dd HH:mm:ss z}", "level": "%-5level","class":"%class{36}","line":"%L","method":"%M","msg": "%message"}%n</Property>
+	</Properties>
+	<!--先定义所有的appender -->
+	<appenders>
+		<!--日志服务ELK-->
+		<Socket name="socket" host="192.168.2.60" port="4560">
+			<ThresholdFilter level="info" onMatch="ACCEPT"
+				onMismatch="DENY" />
+			<PatternLayout
+				pattern="${LOG_PATTERN}" />
+		</Socket>
+		<!--这个输出控制台的配置 -->
+		<Console name="Console" target="SYSTEM_OUT">
+			<!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch） -->
+			<ThresholdFilter level="info" onMatch="ACCEPT"
+				onMismatch="DENY" />
+			<!--这个都知道是输出日志的格式 -->
+			<PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss z} %-5level %class{36} %L %M - %msg%xEx%n" />
+			<!-- <PatternLayout pattern="${LOG_PATTERN}" /> -->
+		</Console>
+	</appenders>
+	<!--然后定义logger，只有定义了logger并引入的appender，appender才会生效 -->
+	<loggers>
+		<Logger name="com.zzd.**..*" level="debug">
+			<AppenderRef ref="socket" />
+		</Logger>
+		<logger name="com.zzd.**..*" level="DEBUG" additivity="false">
+			<appender-ref ref="Console" />
+		</logger>
+		<!--建立一个默认的root的logger -->
+		<root level="info">
+			<appender-ref ref="Console" />
+			<!--<appender-ref ref="socket" />-->
+		</root>
+	</loggers>
+</configuration> 

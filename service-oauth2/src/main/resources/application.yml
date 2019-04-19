@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/activity?characterEncoding=utf8&useSSL=false
+    username: root
+    password: root
+    driverClassName: com.mysql.jdbc.Driver
+  application:
+    name: service-oauth2
+  cloud:
+    discovery:
+      client:
+        simple:
+          local:
+            service-id: service-mongo
+#链路追踪配置
+    zipkin:
+      base-url: http://localhost:9411
+    sleuth:
+      sampler:
+        #链路信息全都要
+        percentage: 1.0
+eureka:
+  instance:
+      prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://localhost:8765/eureka/
+server:
+  port: 8087
+management:
+  endpoints:
+    web:
+      exposure:
+# SpringBootActuator监控暴露所有接口
+        include: '*'
+

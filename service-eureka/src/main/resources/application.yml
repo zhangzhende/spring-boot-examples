@@ -1,0 +1,11 @@
+
+spring:
+  application:
+    name: eureka-server
+server:
+  port: 8765
+#作为服务注册服务器，不需要自己来注册
+eureka:
+  client:
+    fetch-registry: false
+    register-with-eureka: false

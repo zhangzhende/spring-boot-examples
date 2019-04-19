@@ -1,0 +1,34 @@
+
+server:
+  port: 8085
+spring:
+  application:
+    name: service-turbine
+  cloud:
+    discovery:
+      client:
+        simple:
+          local:
+            service-id: service-turbine
+
+eureka:
+  instance:
+      prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://localhost:8765/eureka/
+management:
+  endpoints:
+    web:
+      exposure:
+# SpringBootActuator监控暴露所有接口
+        include: '*'
+turbine:
+  aggregator:
+    cluster-config: default
+  app-config: service-mongo,service-es
+  cluster-name-expression: new String("default")
+
+
+
+

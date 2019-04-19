@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!--log4jdbc配置，这里暂用不上-->
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+    <!--<logger name="jdbc.connection" additivity="false" level="warn">-->
+        <!--<appender-ref ref="CONSOLE"/>-->
+        <!--<appender-ref ref="FILE"/>-->
+    <!--</logger>-->
+    <!--<logger name="jdbc.resultset" additivity="false" level="warn">-->
+        <!--<appender-ref ref="CONSOLE"/>-->
+        <!--<appender-ref ref="FILE"/>-->
+    <!--</logger>-->
+    <!--<logger name="jdbc.audit" additivity="false" level="warn">-->
+        <!--<appender-ref ref="CONSOLE"/>-->
+        <!--<appender-ref ref="FILE"/>-->
+    <!--</logger>-->
+    <!--<logger name="jdbc.sqlonly" additivity="false" level="info">-->
+        <!--<appender-ref ref="CONSOLE"/>-->
+        <!--<appender-ref ref="FILE"/>-->
+    <!--</logger>-->
+    <!--<logger name="jdbc.sqltiming" additivity="false" level="info">-->
+        <!--<appender-ref ref="CONSOLE"/>-->
+        <!--<appender-ref ref="FILE"/>-->
+    <!--</logger>-->
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <Target>System.out</Target>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss:SSS , GMT+8} [%thread] [%c:%L]-[%p]
+                %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <appender name="R"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>mongo.log</File>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss:SSS , GMT+8} [%thread] [%c:%L]-[%p]
+                %m%n
+            </pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>mongo.%d.log</fileNamePattern>
+        </rollingPolicy>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="stdout"/>
+        <!--暂时不写入文件-->
+        <!--<appender-ref ref="R"/>-->
+    </root>
+</configuration>

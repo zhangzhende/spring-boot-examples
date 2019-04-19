@@ -1,0 +1,27 @@
+server:
+  port: 8086
+zuul:
+  routes:
+    service-es:
+      path: /esapi/**
+      serviceId: service-es
+    service-mongo:
+      path: /mongoapi/**
+      serviceId: service-mongo
+  strip-prefix: true
+eureka:
+  instance:
+      prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://localhost:8765/eureka/
+spring:
+  application:
+    name: service-zuul
+  cloud:
+    discovery:
+      client:
+        simple:
+          local:
+            service-id: service-zuul
+

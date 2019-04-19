@@ -1,0 +1,53 @@
+#服务注册与发现配置
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://localhost:8765/eureka/
+
+spring:
+  application:
+    name: gateway
+#链路追踪配置
+  cloud:
+    zipkin:
+      base-url: http://localhost:9411
+    sleuth:
+      sampler:
+        #链路信息全都要
+        percentage: 1.0
+#gateway 网关配置
+    gateway:
+      discovery:
+        locator:
+#        spring.cloud.gateway.discovery.locator.enabled：是否与服务注册于发现组件进行结合，通过 serviceId 转发到具体的服务实例。
+#默认为false，设为true便开启通过服务中心的自动根据 serviceId 创建路由的功能。
+          enabled: true
+          lower-case-service-id: true
+      routes:
+      - id: service-mongo
+      # 必须使用http进行转发，lb代表从注册中心获取服务
+        uri: lb://service-mongo
+        predicates:
+        - Path=/mongoapi/**
+        filters:
+        # http://localhost:6601/userapi/user/users/2, 必须加上StripPrefix=1，否则访问服务时会带上userapi 而不是我们期望的去掉userapi，只保留**部分
+        - StripPrefix=1
+#        继承工厂方式实现的filter，名字是类前缀，AuthorizeGatewayFilterFactory的Authorize，值是config的参数，这里指是否有效
+        - Authorize=true
+#        - AddResponseHeader=X-Response-Default-Foo, Default-Bar
+
+      #这里的配置会有用，能跳转但是无法拦截，但是自定义拦截器里面的bean定义的才会被拦截器拦截
+#      - id: service-es
+#        uri: lb://service-es
+#        predicates:
+#        - Path=/esapi/**
+#        filters:
+#        - StripPrefix=1
+server:
+  port: 9000
+logging:
+  level:
+    org.springframework.cloud.*: debug
+

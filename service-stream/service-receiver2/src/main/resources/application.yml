@@ -1,0 +1,58 @@
+server:
+  port: 8092
+spring:
+  application:
+    name: service-stream-receiver2
+  cloud:
+    discovery:
+      client:
+        simple:
+          local:
+            service-id: service-stream-receiver2
+    stream:
+##    kafka-start
+#      kafka:
+#        binder:
+#          brokers: localhost:9092
+#          auto-create-topics: true
+##    kafka-end
+      bindings:
+#input是接收，注意这里不能再像前面一样写output了
+          input:
+            destination: stream-pub
+          myTranceInput:
+            destination: stream-pub-trance-to
+#            消息分组，即组内只会有一个接收端能消费消息，不会重复
+          myGroupIutput:
+            destination: stream-pub-group
+            group: group
+#           如果要换消息中间件，只需要将kafka的配置改成这样的rabbitMQ配置，然后更改一下maven依赖
+#--rabbitmq-start
+      binders:
+        local_rabbit:
+          type: rabbit
+          environment:
+            spring:
+              rabbitmq:
+                host: localhost
+                port: 5672
+                username: guest
+                password: guest
+#--rabbitmq-end
+#            consumer:
+#              partitioned: true
+#      instance-count: 2
+
+
+eureka:
+  instance:
+      prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://localhost:8765/eureka/
+management:
+  endpoints:
+    web:
+      exposure:
+# SpringBootActuator监控暴露所有接口
+        include: '*'

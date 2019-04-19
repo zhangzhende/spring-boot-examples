@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: service-rabbitmq
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+  cloud:
+    discovery:
+      client:
+        simple:
+          local:
+            service-id: service-rabbitmq
+#链路追踪配置
+    zipkin:
+      base-url: http://localhost:9411
+    sleuth:
+      sampler:
+        #链路信息全都要
+        percentage: 1.0
+eureka:
+  instance:
+      prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://localhost:8765/eureka/
+server:
+  port: 8088
+management:
+  endpoints:
+    web:
+      exposure:
+# SpringBootActuator监控暴露所有接口
+        include: '*'

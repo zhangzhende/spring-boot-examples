@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: service-shiro-simple
+  cloud:
+    discovery:
+      client:
+        simple:
+          local:
+            service-id: service-shiro-simple
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/oauth2?characterEncoding=utf8&useSSL=false
+    username: root
+    password: root
+    driverClassName: com.mysql.jdbc.Driver
+eureka:
+  instance:
+      prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://localhost:8765/eureka/
+server:
+  port: 8100
+management:
+  endpoints:
+    web:
+      exposure:
+# SpringBootActuator监控暴露所有接口
+        include: '*'
+
+mybatis:
+  mapper-locations: classpath:mapper/*Mapper.xml,classpath:extend/*Mapper.xml
+  configuration:
+    map-underscore-to-camel-case: true
