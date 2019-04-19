@@ -17,10 +17,23 @@ public class ServiceKafkaApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(ServiceKafkaApplication.class, args);
+
     }
 
     @Scheduled(fixedRate = 1000 * 2)
     public void testKafka() {
         sender.sendMsg();
     }
+
+//    public static void main(String[] args) {
+//        String a="a";
+//        final String b="a";
+//        String c=a+"c";
+//        String d=b+"c";
+//        String e="a"+"c";
+//        String g="ac";
+//        String f=a+"c";
+//        System.out.println();
+//
+//    }
 }
