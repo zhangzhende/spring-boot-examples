@@ -129,7 +129,7 @@ public class MongoService {
      */
     public DeleteResult deletePrimary(User user) {
         Query query = buildQuery(user);
-        DeleteResult result = primaryMongoTemplate.remove(query, User.class);
+        DeleteResult result = primaryMongoTemplate.remove(query, User.class,"user");
         return result;
     }
 
