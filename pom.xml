@@ -94,31 +94,10 @@
 		</dependencies>
 	</dependencyManagement>
 	<distributionManagement>
-		<repository>
-			<id>nlx_releases</id>
-			<name>releases</name>
-			<url>http://192.168.10.210:9081/repository/nlx_release/</url>
-			<uniqueVersion>false</uniqueVersion>
-		</repository>
-		<snapshotRepository>
-			<id>nlx-snapshots</id>
-			<name>snapshots</name>
-			<url>http://192.168.10.210:9081/repository/nlx_snapshot/</url>
-		</snapshotRepository>
+
 	</distributionManagement>
 	<repositories>
-		<repository>
-			<id>nlx_group</id>
-			<name>nlx_group</name>
-			<url>http://192.168.10.210:9081/repository/nlx_group/</url>
-			<layout>default</layout>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
+
 		<repository>
 			<id>spring-milestones</id>
 			<name>Spring Milestones</name>
