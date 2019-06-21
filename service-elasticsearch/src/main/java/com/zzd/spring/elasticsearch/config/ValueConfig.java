@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * 配置文件相关属性配置注入
- * 
+ *
  * @author zhangzhende
  * @version 2018年11月5日
  * @see ValueConfig

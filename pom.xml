@@ -24,6 +24,7 @@
 		<module>service-elasticsearch</module>
 		<module>service-gateway</module>
 		<module>service-eureka</module>
+		<module>service-spark</module>
 	</modules>
 	<dependencies>
 		<dependency>
