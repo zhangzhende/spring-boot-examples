@@ -1,0 +1,21 @@
+server:
+  port: 8090
+
+esconfig:
+  clustername: elasticsearch
+  hosts:
+    -
+      ip: 192.168.30.230
+      port: 9200
+      schema: http
+#  -
+#    ip: 192.168.1.3
+#    port: 9200
+#    schema: http
+ES:
+  index: mytest
+  timeDifference: 600000
+  batchSize: 1000
+#  swagger配置，host为调用页面的接口配置，如localhost，则在调用接口的时候会localhost调用
+swagger:
+  host: localhost:${server.port}
