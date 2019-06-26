@@ -29,4 +29,10 @@
 
 ###spring boot 集成elasticsearch的简单demo
 
+###spring boot 集成elaasticsearch 使用restClient方式
+主要为RestHighLevelClient
+
 ###spring boot 集成mongodb的简单demo 
+
+###一个简单的spark的wordcount demo，主要了解spark环境
+数据来源于kafka消息队列
