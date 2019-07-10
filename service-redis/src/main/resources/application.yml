@@ -1,0 +1,21 @@
+redis:
+  cache:
+    clusterNodes: 192.168.30.29:6379
+    commandTimeout: 10000
+    expireSeconds: 120
+    maxTotal: 10000
+    maxIdle: 2000
+    minIdle: 100
+    testOnBorrow: true
+    testOnReturn: true
+    maxWaitMillis: 10000
+    timeBetweenEvictionRunsMillis: 30000
+    testWhileIdle: true
+    numTestsPerEvictionRun: 50
+    minEvictableIdleTimeMillis: 60000
+
+spring:
+  application:
+    name: service-redis
+server:
+  port: 8092
