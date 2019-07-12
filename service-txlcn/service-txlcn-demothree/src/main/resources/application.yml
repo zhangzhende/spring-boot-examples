@@ -1,0 +1,25 @@
+#feign.hystrix.enabled=true
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.30.29:3306/mycatdb1?characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+  application:
+    name: demo1
+server:
+  port: 8097
+#${random.int[9000,9999]}
+eureka:
+  client:
+    service-url:
+      defaultZone: http://192.168.30.29:8765/eureka/
+
+#txmanager地址
+tx-lcn:
+  client:
+    manager-address: 192.168.30.29:8070
+#logging.level.com.codingapi=debug
+
+#spring.jpa.show-sql=true
