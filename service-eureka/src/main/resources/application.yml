@@ -7,5 +7,7 @@ server:
 #作为服务注册服务器，不需要自己来注册
 eureka:
   client:
+#    不需要检索服务
     fetch-registry: false
+#    不需要注册服务
     register-with-eureka: false

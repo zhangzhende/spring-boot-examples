@@ -25,7 +25,7 @@ public class AuthorizeGatewayFilter implements GatewayFilter,Ordered {
     private static final String AUTH_PLATFORM="platform";
 
     /**
-     * 首先从header中获取token，但是如果header中没有token，那么就从参数中获取【总有人会瞎鸡儿搞】，
+     * 首先从header中获取platform，但是如果header中没有platform，那么就从参数中获取【总有人会瞎鸡儿搞】，
      * 优先header，如果没传就返回401，
      * @param exchange
      * @param chain
