@@ -1,6 +1,6 @@
 package com.zzd.spring.gateway.config;
 
-import com.zzd.spring.gateway.filter.AuthorizeGatewayFilter;
+import com.zzd.spring.gateway.filter.TokenAuthGatewayFilter;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
@@ -15,7 +15,7 @@ public class FilterConfigure {
         RouteLocator routeLocator;
         routeLocator = builder.routes()
                 .route(r -> r.path("/mongoapi")
-                        .filters(f -> f.filter(new AuthorizeGatewayFilter())).uri("lb://service-mongo").order(0)).build();
+                        .filters(f -> f.filter(new TokenAuthGatewayFilter())).uri("lb://service-mongo").order(0)).build();
         return routeLocator;
     }
 

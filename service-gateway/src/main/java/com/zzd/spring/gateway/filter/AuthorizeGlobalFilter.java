@@ -15,13 +15,13 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
- * 全局拦截
+ * 全局拦截，全局过滤器
  * Created by Administrator on 2019/4/4 0004.
  */
 @Component
 public class AuthorizeGlobalFilter implements GlobalFilter, Ordered {
     private static final Log logger = LogFactory.getLog(AuthorizeGlobalFilter.class);
-    private static final String AUTH_TOKEN = "token";
+    private static final String SYSNAME = "sysname";
     private static final String START_TIME = "startTime";
 
     @Override
@@ -29,13 +29,14 @@ public class AuthorizeGlobalFilter implements GlobalFilter, Ordered {
         //验证token
         ServerHttpRequest request = exchange.getRequest();
         HttpHeaders headers = request.getHeaders();
-        String token = headers.getFirst(AUTH_TOKEN);
-        if (StringUtils.isBlank(AUTH_TOKEN)) {
-            token = request.getQueryParams().getFirst(AUTH_TOKEN);
+        String token = headers.getFirst(SYSNAME);
+        if (StringUtils.isBlank(token)) {
+            token = request.getQueryParams().getFirst(SYSNAME);
         }
         ServerHttpResponse response = exchange.getResponse();
         if (StringUtils.isBlank(token)) {
             response.setStatusCode(HttpStatus.UNAUTHORIZED);
+            logger.info("from global filer :SYSNAME: not exist");
             return response.setComplete();
         }
 

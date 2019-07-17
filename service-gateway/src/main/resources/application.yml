@@ -4,7 +4,7 @@ eureka:
     prefer-ip-address: true
   client:
     service-url:
-      defaultZone: http://localhost:8765/eureka/
+      defaultZone: http://localhost:8761/eureka/
 
 spring:
   application:
@@ -35,9 +35,21 @@ spring:
         # http://localhost:6601/userapi/user/users/2, 必须加上StripPrefix=1，否则访问服务时会带上userapi 而不是我们期望的去掉userapi，只保留**部分
         - StripPrefix=1
 #        继承工厂方式实现的filter，名字是类前缀，AuthorizeGatewayFilterFactory的Authorize，值是config的参数，这里指是否有效
-        - Authorize=true
+        - TokenAuth=true
+        #        自定义过滤器，对应于PlatformAuthGatewayFilterFactory，true/false表示config的参数,表示是否使用该过滤器
+        - PlatformAuth=true
 #        - AddResponseHeader=X-Response-Default-Foo, Default-Bar
-
+      - id: service-one
+        uri: lb://service-one
+        predicates:
+        - Path=/oneapi/**
+        filters:
+        - StripPrefix=1
+        - UidAuth=true
+        #TokenAuth使用的是实现接口的方式，其中指定了执行顺序，会按照指定的顺序执行，0，比较靠前，所以，通过继承的方式实现可以不指定顺序，这样
+        #配置文件中配置的顺序就是执行顺序，故而推荐继承
+        - TokenAuth=true
+        - PlatformAuth=true
       #这里的配置会有用，能跳转但是无法拦截，但是自定义拦截器里面的bean定义的才会被拦截器拦截
 #      - id: service-es
 #        uri: lb://service-es

@@ -1,11 +1,11 @@
 package com.zzd.spring.gateway;
 
-import com.zzd.spring.gateway.filter.AuthorizeGatewayFilter;
-import com.zzd.spring.gateway.filter.AuthorizeGatewayFilterFactory;
+import com.zzd.spring.gateway.filter.TokenAuthGatewayFilter;
+import com.zzd.spring.gateway.filter.TokenAuthGatewayFilterFactory;
+import com.zzd.spring.gateway.filter.UidAuthGatewayFilterFactory;
+import com.zzd.spring.gateway.filter.PlatformAuthGatewayFilterFactory;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
@@ -28,7 +28,7 @@ public class ServiceGatewayApplication {
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
                 .route("service-es", r -> r.path("/esapi/**")
-                        .filters(f -> f.stripPrefix(1).filter(new AuthorizeGatewayFilter()))
+                        .filters(f -> f.stripPrefix(1).filter(new TokenAuthGatewayFilter()))
                         .uri("lb://service-es"))
                 .build();
     }
@@ -39,7 +39,19 @@ public class ServiceGatewayApplication {
      * @return
      */
     @Bean
-    public AuthorizeGatewayFilterFactory AuthorizeGatewayFilterFactory() {
-        return new AuthorizeGatewayFilterFactory();
+    public UidAuthGatewayFilterFactory AuthorizeGatewayFilterFactory() {
+        return new UidAuthGatewayFilterFactory();
+    }
+    /**
+     * 注入平台验证过滤器
+     * @return
+     */
+    @Bean
+    public PlatformAuthGatewayFilterFactory PlatformAuthGatewayFilterFactory(){
+        return new PlatformAuthGatewayFilterFactory();
+    }
+@Bean
+    public TokenAuthGatewayFilterFactory TokenAuthGatewayFilterFactory(){
+        return new TokenAuthGatewayFilterFactory();
     }
 }
