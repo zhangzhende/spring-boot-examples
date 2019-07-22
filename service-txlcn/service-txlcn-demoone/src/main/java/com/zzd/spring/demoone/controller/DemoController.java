@@ -1,8 +1,9 @@
 package com.zzd.spring.demoone.controller;
 
 
-import com.example.demo.entity.Test;
-import com.example.demo.service.TDemoService;
+
+import com.zzd.spring.demoone.entity.Test;
+import com.zzd.spring.demoone.service.TDemoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;

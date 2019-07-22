@@ -1,7 +1,7 @@
 package com.zzd.spring.demoone.controller;
 
-import com.example.demo.entity.TTest;
-import com.example.demo.service.TTestService;
+import com.zzd.spring.demoone.entity.TTest;
+import com.zzd.spring.demoone.service.TTestService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
