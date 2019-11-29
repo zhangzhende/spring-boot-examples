@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zzd.service.arcsoft.dao.TUserFaceDao">
+
+    <resultMap type="com.zzd.service.arcsoft.entity.TUserFace" id="TUserFaceMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="groupId" column="group_id" jdbcType="INTEGER"/>
+        <result property="faceId" column="face_id" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="age" column="age" jdbcType="INTEGER"/>
+        <result property="gender" column="gender" jdbcType="INTEGER"/>
+        <result property="phone" column="phone" jdbcType="VARCHAR"/>
+        <result property="faceFeature" column="face_feature"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="filePath" column="file_path" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="TUserFaceMap">
+        select
+          id, group_id, face_id, name, age, gender, phone, face_feature, create_time, update_time, file_path
+        from db_ad_analyzed.t_user_face
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="TUserFaceMap">
+        select
+          id, group_id, face_id, name, age, gender, phone, face_feature, create_time, update_time, file_path
+        from db_ad_analyzed.t_user_face
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="TUserFaceMap">
+        select
+        id, group_id, face_id, name, age, gender, phone, face_feature, create_time, update_time, file_path
+        from db_ad_analyzed.t_user_face
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="groupId != null">
+                and group_id = #{groupId}
+            </if>
+            <if test="faceId != null and faceId != ''">
+                and face_id = #{faceId}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="age != null">
+                and age = #{age}
+            </if>
+            <if test="gender != null">
+                and gender = #{gender}
+            </if>
+            <if test="phone != null and phone != ''">
+                and phone = #{phone}
+            </if>
+            <if test="faceFeature != null">
+                and face_feature = #{faceFeature}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime}
+            </if>
+            <if test="filePath != null and filePath != ''">
+                and file_path = #{filePath}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into db_ad_analyzed.t_user_face(group_id, face_id, name, age, gender, phone, face_feature, create_time, update_time, file_path)
+        values (#{groupId}, #{faceId}, #{name}, #{age}, #{gender}, #{phone}, #{faceFeature}, #{createTime}, #{updateTime}, #{filePath})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update db_ad_analyzed.t_user_face
+        <set>
+            <if test="groupId != null">
+                group_id = #{groupId},
+            </if>
+            <if test="faceId != null and faceId != ''">
+                face_id = #{faceId},
+            </if>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="age != null">
+                age = #{age},
+            </if>
+            <if test="gender != null">
+                gender = #{gender},
+            </if>
+            <if test="phone != null and phone != ''">
+                phone = #{phone},
+            </if>
+            <if test="faceFeature != null">
+                face_feature = #{faceFeature},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="filePath != null and filePath != ''">
+                file_path = #{filePath},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from db_ad_analyzed.t_user_face where id = #{id}
+    </delete>
+
+    <!--查询分组下的所有face信息-->
+    <select id="getUserFaceInfoByGroupId" resultType="com.zzd.service.arcsoft.model.dto.FaceUserInfo">
+        select
+            face_id, name, face_feature
+        from db_ad_analyzed.t_user_face
+        where group_id = #{groupId}
+    </select>
+</mapper>

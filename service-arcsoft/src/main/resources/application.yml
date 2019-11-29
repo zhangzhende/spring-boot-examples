@@ -1,0 +1,25 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: service-arcsoft
+  jackson:
+    date-format: yyyy-MM-dd
+    time-zone: GMT+8
+  datasource:
+    url: jdbc:mysql://192.168.30.29:3306/db_ad_analyzed?characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+    driverClassName: com.mysql.jdbc.Driver
+    name: mydb
+    type: com.alibaba.druid.pool.DruidDataSource
+mybatis:
+  mapper-locations: classpath:mapper/*Dao.xml
+  configuration:
+    map-underscore-to-camel-case: true
+config:
+  arcface-sdk:
+    sdk-lib-path: D:\ideaworkingspace\spring-boot-examples\service-arcsoft\lib
+    app-id: 5zjbRnpArppSvC7FdWJpatVS3bCaaGaXFK5cAaKAfjug
+    sdk-key: CqEGgej1ABNyxhMe2MLHtWr9mddkftbJ67us5e2RDwC8
+    thread-pool-size: 5
