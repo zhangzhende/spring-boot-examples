@@ -4,16 +4,17 @@ import cn.hutool.core.codec.Base64Decoder;
 import cn.hutool.core.codec.Base64Encoder;
 import com.alibaba.fastjson.JSONObject;
 import com.zzd.spring.parent.service.blockchain.EviContract;
-import com.zzd.spring.parent.service.blockchain.model.BlockchainTransaction;
+import com.zzd.spring.parent.service.blockchain.config.ConfigProperties;
+import com.zzd.spring.parent.service.blockchain.model.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.FunctionReturnDecoder;
 import org.web3j.abi.TypeReference;
@@ -32,7 +33,9 @@ import org.web3j.tx.gas.DefaultGasProvider;
 import org.web3j.utils.Convert;
 import org.web3j.utils.Numeric;
 import springfox.documentation.annotations.ApiIgnore;
+import sun.misc.BASE64Encoder;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -54,24 +57,24 @@ import static com.zzd.spring.parent.service.blockchain.EviContract.FUNC_GETDATA;
  * @Version 1.0
  **/
 @RestController
-@RequestMapping(value = "/eth")
-@Api(value = "区块链相关接口", protocols = "http/https", tags = "区块链相关接口【ZZD】")
-public class EthController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(EthController.class);
+@RequestMapping(value = "/blockchain")
+@Api(value = "区块链相关接口-2", protocols = "http/https", tags = "区块链相关接口-2【ZZD】")
+public class Controller {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Controller.class);
     @Autowired
     private Web3j web3j;
     @Autowired
     private Admin admin;
-//    public static final BigInteger GAS_LIMIT = Contract.GAS_LIMIT;
-    public static final BigInteger GAS_LIMIT = DefaultGasProvider.GAS_LIMIT;
-//    public static final BigInteger GAS_PRICE = Contract.GAS_PRICE;
-    public static final BigInteger GAS_PRICE = DefaultGasProvider.GAS_PRICE;
+    @Autowired
+    private ConfigProperties configProperties;
+//    public static final BigInteger GAS_LIMIT = DefaultGasProvider.GAS_LIMIT;
+//    public static final BigInteger GAS_PRICE = DefaultGasProvider.GAS_PRICE;
 
-    public static final String filepath = "D:\\testGeth\\privateChain\\data\\00\\keystore";
+    public static final BigInteger GAS_LIMIT = Contract.GAS_LIMIT;//BigInteger.valueOf(999_999_999);//
+    public static final BigInteger GAS_PRICE = Contract.GAS_PRICE;//BigInteger.valueOf(999_999_999);//
 
     /**
      * 查询区块高度
-     *
      *
      * @return
      */
@@ -96,7 +99,7 @@ public class EthController {
      */
     @ApiOperation(value = "某一个区块的交易数量", notes = "某一个区块的交易数量【zzd】")
     @RequestMapping(value = "/blockCount", method = RequestMethod.POST)
-    public Long getBlockCountByNumber(@ApiParam(value = "1",name = "区块编号") String number) {
+    public Long getBlockCountByNumber(@ApiParam(value = "区块编号", name = "number") @RequestParam String number) {
         try {
             DefaultBlockParameter parameter = DefaultBlockParameter.valueOf(new BigInteger(number));
             EthGetBlockTransactionCountByNumber send = web3j.ethGetBlockTransactionCountByNumber(parameter).send();
@@ -116,7 +119,7 @@ public class EthController {
      */
     @ApiOperation(value = "获取用户的Nounce", notes = "获取用户的Nounce【zzd】")
     @RequestMapping(value = "/nounce", method = RequestMethod.POST)
-    public BigInteger getNounce(@ApiParam(value = "1",name = "用户地址，账户") String address) {
+    public BigInteger getNounce(@ApiParam(value = "用户地址，账户", name = "address") @RequestParam String address) {
         try {
             EthGetTransactionCount getNonce = web3j.ethGetTransactionCount(address, DefaultBlockParameterName.PENDING).send();
             if (getNonce != null) {
@@ -135,7 +138,7 @@ public class EthController {
      */
     @ApiOperation(value = "查询用户的余额", notes = "查询用户的余额【zzd】")
     @RequestMapping(value = "/balance", method = RequestMethod.POST)
-    public BigInteger getBalance(@ApiParam(value = "1",name = "用户地址，账户")String address) {
+    public BigInteger getBalance(@ApiParam(value = "用户地址，账户", name = "address") @RequestParam String address) {
         EthGetBalance balance = null;
         try {
             balance = web3j.ethGetBalance(address, DefaultBlockParameterName.PENDING).send();
@@ -160,11 +163,11 @@ public class EthController {
      */
     @ApiIgnore
     @RequestMapping(value = "/transfer", method = RequestMethod.POST)
-    public String transferETH(@ApiParam(value = "1",name = "出钱方账户")String fromAddr,
-                              @ApiParam(value = "1",name = "账户")String toAddr,
-                              @ApiParam(value = "1",name = "密码")String privateKey,
-                              @ApiParam(value = "1",name = "交易数量")BigDecimal amount,
-                              @ApiParam(value = "1",name = "数据")String data) {
+    public String transferETH(@ApiParam(value = "出钱方账户", name = "fromAddr") @RequestParam String fromAddr,
+                              @ApiParam(value = "接收方账户", name = "toAddr") @RequestParam String toAddr,
+                              @ApiParam(value = "密码", name = "privateKey") @RequestParam String privateKey,
+                              @ApiParam(value = "交易数量", name = "amount") @RequestParam BigDecimal amount,
+                              @ApiParam(value = "数据", name = "data") @RequestParam String data) {
         // 获得nonce
         BigInteger nonce = getNounce(fromAddr);
         // value 转换
@@ -184,11 +187,11 @@ public class EthController {
 
     @ApiOperation(value = "存入数据（也就是交易），数据存入data", notes = "存入数据（也就是交易）【zzd】")
     @RequestMapping(value = "/transfer2", method = RequestMethod.POST)
-    public String transferETH2(@ApiParam(value = "1",name = "出钱方账户")String fromAddr,
-                               @ApiParam(value = "1",name = "账户")String toAddr,
-                               @ApiParam(value = "1",name = "密码")String privateKey,
-                               @ApiParam(value = "1",name = "交易数量")BigDecimal amount,
-                               @ApiParam(value = "1",name = "数据")String data) throws IOException {
+    public String transferETH2(@ApiParam(value = "出钱方账户", name = "fromAddr") @RequestParam String fromAddr,
+                               @ApiParam(value = "账户", name = "toAddr") @RequestParam String toAddr,
+                               @ApiParam(value = "密码", name = "privateKey") @RequestParam String privateKey,
+                               @ApiParam(value = "交易数量", name = "amount") @RequestParam BigDecimal amount,
+                               @ApiParam(value = "数据", name = "data") @RequestParam String data) throws IOException {
         PersonalUnlockAccount unlock = admin.personalUnlockAccount(fromAddr, privateKey).send();
         if (!unlock.accountUnlocked()) {
             return "not unlock";
@@ -224,113 +227,142 @@ public class EthController {
      */
     @ApiOperation(value = "查询数据，也就是查询存入交易中的Data", notes = "查询数据，【zzd】")
     @RequestMapping(value = "/getTransfer", method = RequestMethod.POST)
-    public String getTransfer(@ApiParam(value = "1",name = "交易hash值")String transHash) {
+    public AjaxResult<String> getTransfer(@RequestBody  QueryTradeDTO param) {
 
         String result = "";
+        AjaxResult<String> ajaxResult = new AjaxResult<>();
         try {
-            EthTransaction send = web3j.ethGetTransactionByHash(transHash).send();
+            EthTransaction send = web3j.ethGetTransactionByHash(param.getTransHash()).send();
             String input = send.getResult().getInput();
-            System.out.println(input);
             String ouot = hexStringToString(input);
             System.out.println(ouot);
-//            byte[] decode = Base64Decoder.decode(ouot.getBytes("utf-8"));
-//            String s = new String(decode, "utf-8");
-//            System.out.println(s);
-            result = JSONObject.toJSONString(send.getResult());
-            System.out.println(result);
-            result=ouot;
+            int start = ouot.indexOf("{");
+            int end = ouot.lastIndexOf("}")+1;
+            result = ouot.substring(start,end);
+            String Sendresult = JSONObject.toJSONString(send.getResult());
+            ajaxResult = AjaxResultUtil.getTrueAjaxResult(ajaxResult);
+            ajaxResult.setData(result);
+            System.out.println(Sendresult);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return result;
+        return ajaxResult;
     }
 
     /**
      * 部署java的智能合约
      *
-     * @param password
-     * @param filename
      * @return
      * @throws Exception
      */
-    @ApiOperation(value = "部署合约", notes = "部署合约，【zzd】")
+    @ApiOperation(value = "部署合约", notes = "部署合约，返回合约地址【zzd】")
     @RequestMapping(value = "/deployContract", method = RequestMethod.POST)
-    public String deployContract(String password, String filename) throws Exception {
-        String path = filepath + File.separator + filename;
-        Credentials credentials = WalletUtils.loadCredentials(password, path);
+    public AjaxResult<String> deployContract() throws Exception {
+        String path = configProperties.getKeyFilePath() + configProperties.getKeyFileName();
+        Credentials credentials = WalletUtils.loadCredentials(configProperties.getPassword(), path);
         EviContract send = EviContract.deploy(web3j, credentials, GAS_PRICE, GAS_LIMIT).send();
-        return send.getContractAddress();
+        String contractAddress = send.getContractAddress();
+        AjaxResult<String> ajaxResult = new AjaxResult<>();
+        ajaxResult = AjaxResultUtil.getTrueAjaxResult(ajaxResult);
+        ajaxResult.setData(contractAddress);
+        return ajaxResult;
     }
 
-    @ApiOperation(value = "创建账户", notes = "创建账户，【zzd】")
+    @ApiOperation(value = "创建账户", notes = "创建账户,返回账户地址账号，【zzd】")
     @RequestMapping(value = "/newWallet", method = RequestMethod.POST)
-    public String newWallet(String password) throws IOException, CipherException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
+    public String newWallet(@ApiParam(value = "密码", name = "password") @RequestParam String password) throws IOException, CipherException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
 
-        String s = WalletUtils.generateNewWalletFile(password, new File(filepath));
+        String s = WalletUtils.generateNewWalletFile(password, new File(configProperties.getKeyFilePath()));
         return s;
     }
+
     @ApiOperation(value = "查询所有账户信息", notes = "查询所有账户信息，【zzd】")
     @RequestMapping(value = "/getAccounts", method = RequestMethod.POST)
-    public List<String> getAccounts(String password) throws IOException, CipherException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
-
+    public List<String> getAccounts() throws IOException {
         EthAccounts send = web3j.ethAccounts().send();
         return send.getAccounts();
     }
-    @ApiOperation(value = "合约中的数据保存", notes = "合约中的数据保存，【zzd】")
+
+    @ApiOperation(value = "合约中的数据保存", notes = "合约中的数据保存，返回交易hash【zzd】")
     @RequestMapping(value = "/saveData", method = RequestMethod.POST)
-    public String saveData(String contractAddress, String filename, String key, String content, String password) throws Exception {
-        String path = filepath + File.separator + filename;
-        Credentials credentials = WalletUtils.loadCredentials(password, path);
+    public String saveData(@RequestBody SaveDataDTO param) throws Exception {
+        String path = configProperties.getKeyFilePath() + configProperties.getKeyFileName();
+        Credentials credentials = WalletUtils.loadCredentials(configProperties.getPassword(), path);
+        EviContract contract = EviContract.load(param.getContractAddress(), web3j, credentials, GAS_PRICE, GAS_LIMIT);
+        TransactionReceipt receipt = contract.setData(param.getKey().getBytes("utf-8"), param.getContent()).send();
+        LOGGER.info(receipt.toString());
+        String transactionHash = receipt.getTransactionHash();
+        return transactionHash;
+    }
+
+    @ApiOperation(value = "合约中的数据保存", notes = "合约中的数据保存，返回交易hash【zzd】")
+    @RequestMapping(value = "/saveData2", method = RequestMethod.POST)
+    public AjaxResult<String> saveData2( HttpServletRequest request
+//            @RequestParam(value="file") MultipartFile file,
+//                                        @RequestParam(value = "contractAddress") String contractAddress,
+//                                        @RequestParam(value = "key") String key
+    ) throws Exception {
+        MultipartHttpServletRequest params=((MultipartHttpServletRequest) request);
+        MultipartFile file = params.getFile("file");
+        String contractAddress = params.getParameter("contractAddress");
+        String key = params.getParameter("key");
+
+        BASE64Encoder encoder = new BASE64Encoder();
+        String encode = encoder.encode(file.getBytes()).replaceAll("\r\n", "");
+        String path = configProperties.getKeyFilePath() + configProperties.getKeyFileName();
+        Credentials credentials = WalletUtils.loadCredentials(configProperties.getPassword(), path);
         EviContract contract = EviContract.load(contractAddress, web3j, credentials, GAS_PRICE, GAS_LIMIT);
-        TransactionReceipt receipt = contract.setData(key.getBytes("utf-8"), content).send();
-        return receipt.toString();
+
+        ChainContent chainContent = new ChainContent();
+        chainContent.setContent(encode);
+        TransactionReceipt receipt = contract.setData(key.getBytes("utf-8"), JSONObject.toJSONString(chainContent)).send();
+        LOGGER.info(receipt.toString());
+        String transactionHash = receipt.getTransactionHash();
+        AjaxResult<String> ajaxResult = new AjaxResult<>();
+        ajaxResult = AjaxResultUtil.getTrueAjaxResult(ajaxResult);
+        ajaxResult.setData(transactionHash);
+        return ajaxResult;
     }
 
     @ApiOperation(value = "合约中的数据获取", notes = "合约中的数据获取，【zzd】")
     @RequestMapping(value = "/getData", method = RequestMethod.POST)
-    public String getData(String contractAddress, String filename, String key, String password) throws Exception {
+    public String getData(@ApiParam(value = "合约地址", name = "contractAddress") @RequestParam String contractAddress,
+                          @ApiParam(value = "保存的key值", name = "key") @RequestParam String key) throws Exception {
         String result = "";
-        String path = filepath + File.separator + filename;
-        Credentials credentials = WalletUtils.loadCredentials(password, path);
-        EviContract contract = EviContract.load(contractAddress, web3j, credentials, GAS_PRICE, GAS_LIMIT);
-        TransactionReceipt send = contract.getData(key.getBytes("utf-8")).send();
-
-//        TransactionReceipt receipt = contract.getData(key.getBytes("utf-8")).send();
-//        EthTransaction ethTransaction = web3j.ethGetTransactionByHash(receipt.getTransactionHash()).send();
-//        String result=JSONObject.toJSONString(ethTransaction.getResult());
-
+//        String path = configProperties.getKeyFilePath()+configProperties.getKeyFileName();
+//        Credentials credentials = WalletUtils.loadCredentials(configProperties.getPassword(), path);
+//        EviContract contract = EviContract.load(contractAddress, web3j, credentials, GAS_PRICE, GAS_LIMIT);
+//        TransactionReceipt send = contract.getData(key.getBytes("utf-8")).send();
         Function function = new Function(
                 FUNC_GETDATA,
-//                Arrays.asList(new org.web3j.abi.datatypes.generated.Bytes32(key.getBytes())),
                 Arrays.asList(EviContract.stringToBytes32(key.getBytes())),
                 Arrays.asList(new TypeReference<EviContract.DataSavedEventResponse>() {
                 }));
-        String encodedFunction = FunctionEncoder.encode(function);
-        EthCall ethCall = web3j.ethCall(Transaction.createEthCallTransaction(credentials.getAddress(), contractAddress, encodedFunction),
-                DefaultBlockParameterName.LATEST).send();
-        List<Type> decode = FunctionReturnDecoder.decode(ethCall.getValue(), function.getOutputParameters());
-        result = decode.toArray().toString();
+        List<Type> inputParameters = function.getInputParameters();
+        result = inputParameters.toArray().toString();
         String s = JSONObject.toJSONString(result);
         return s;
     }
+
     @ApiOperation(value = "合约中的数据获取2", notes = "合约中的数据获取2，【zzd】")
     @RequestMapping(value = "/getData2", method = RequestMethod.POST)
-    public String getData2(String contractAddress, String filename, String key, String password) throws Exception {
-        String result = "";
-        String path = filepath + File.separator + filename;
-        Credentials credentials = WalletUtils.loadCredentials(password, path);
+    public String getData2(@ApiParam(value = "合约地址", name = "contractAddress") @RequestParam String contractAddress,
+                           @ApiParam(value = "保存的key值", name = "key") @RequestParam String key) throws Exception {
+        String path = configProperties.getKeyFilePath() + configProperties.getKeyFileName();
+        Credentials credentials = WalletUtils.loadCredentials(configProperties.getPassword(), path);
         EviContract contract = EviContract.load(contractAddress, web3j, credentials, GAS_PRICE, GAS_LIMIT);
 
-                TransactionReceipt receipt = contract.getData(key.getBytes("utf-8")).send();
+        TransactionReceipt receipt = contract.getData(key.getBytes("utf-8")).send();
         List<EviContract.DataSavedEventResponse> dataSavedEvents = contract.getDataSavedEvents(receipt);
         String s = JSONObject.toJSONString(dataSavedEvents);
         return s;
     }
+
     @ApiIgnore
     @RequestMapping(value = "/decodeData")
-    public String decodeData(String contractAddress, String filename, String key, String password) throws Exception {
-        String path = filepath + File.separator + filename;
-        Credentials credentials = WalletUtils.loadCredentials(password, path);
+    public String decodeData(String contractAddress, String key) throws Exception {
+        String path = configProperties.getKeyFilePath() + configProperties.getKeyFileName();
+        Credentials credentials = WalletUtils.loadCredentials(configProperties.getPassword(), path);
         EviContract contract = EviContract.load(contractAddress, web3j, credentials, GAS_PRICE, GAS_LIMIT);
         TransactionReceipt receipt = contract.getData(key.getBytes("utf-8")).send();
         return receipt.toString();
@@ -494,7 +526,8 @@ public class EthController {
             }
         }
         try {
-            s = new String(baKeyword, "gbk");
+//            s = new String(baKeyword, "gbk");
+            s = new String(baKeyword, "UTF-8");
             new String();
         } catch (Exception e1) {
             e1.printStackTrace();

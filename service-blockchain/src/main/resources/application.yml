@@ -3,4 +3,9 @@ server:
 web3j:
   client-address: http://localhost:8400
 swagger:
-  host: 192.168.30.29:${server.port}
+  host: 192.168.30.43:${server.port}
+
+config:
+  keyFilePath: D:/testGeth/privateChain/data/00/keystore/
+  keyFileName: UTC--2019-12-06T08-21-45.656865400Z--55c10edcb57579a1101e21a183e831b5792c97e5
+  password: 123456

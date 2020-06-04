@@ -3,6 +3,8 @@ package com.zzd.spring.parent.service.blockchain;
 
 import io.reactivex.Flowable;
 import io.reactivex.functions.Function;
+
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -122,7 +124,8 @@ public class EviContract extends Contract {
     public RemoteFunctionCall<TransactionReceipt> getData(byte[] _key) {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(
                 FUNC_GETDATA, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Bytes32(_key)),
+//                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Bytes32(_key)),
+                Arrays.<Type>asList(stringToBytes32(_key)),
                 Collections.<TypeReference<?>>emptyList());
         return executeRemoteCallTransaction(function);
     }
@@ -130,10 +133,21 @@ public class EviContract extends Contract {
     public RemoteFunctionCall<TransactionReceipt> setData(byte[] _key, String content) {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(
                 FUNC_SETDATA, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Bytes32(_key), 
-                new org.web3j.abi.datatypes.Utf8String(content)), 
+//                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Bytes32(_key),
+                Arrays.<Type>asList(stringToBytes32(_key),
+                new org.web3j.abi.datatypes.Utf8String(content)),
                 Collections.<TypeReference<?>>emptyList());
         return executeRemoteCallTransaction(function);
+    }
+    public static Bytes32 stringToBytes32(byte[] _key) {
+        byte[] byteValue = _key;
+        byte[] byteValueLen32 = new byte[32];
+        System.arraycopy(byteValue, 0, byteValueLen32, 0, byteValue.length);
+        return new Bytes32(byteValueLen32);
+    }
+    public static Utf8String stringToUtf8String(String str) {
+        Utf8String s=new Utf8String(str);
+        return s;
     }
 
     @Deprecated
