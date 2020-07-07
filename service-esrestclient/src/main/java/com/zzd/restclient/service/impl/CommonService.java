@@ -107,7 +107,6 @@ public class CommonService {
         BulkRequest bulkRequest = new BulkRequest();
         // 构建批量更新
         for (Entry<String, Object> entry : map.entrySet()) {
-            bulkRequest.add(new UpdateRequest(index, type, entry.getKey()).doc());
             IndexRequest indexRequest = new IndexRequest(index, type, entry.getKey()).source(
                     Utils.parseToMap(entry.getValue()));
 //            upsert的作用就是当不存在待更新的数据时，就插入这条数据
@@ -220,6 +219,7 @@ public class CommonService {
         } else {
             params.setIsHighlight(false);
         }
+        searchRequest.source(sourceBuilder);
         SearchResponse response = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
         SearchHits hits = response.getHits();
         List<Object> list = new ArrayList<Object>();
